@@ -1,0 +1,262 @@
+/* board-service 전용 스타일 (스코프: .bs-board ...) */
+
+.bs-board .board-page-title { text-align:center; margin:0 0 10px; padding:20px; background:#f8fafc; border-radius:12px; }
+.bs-board .board-page-title h1 { margin:0 0 8px; font-size:2rem; font-weight:700; color:#374151; }
+.bs-board .board-page-title p { margin:0; font-size:1rem; color:#6b7280; font-weight:400; }
+
+.bs-board .search-section { background:#fff; border-radius:12px; margin-bottom:20px; max-width:1200px; margin-left:auto; margin-right:auto; }
+.bs-board .search-container { display:flex; gap:12px; align-items:center; }
+.bs-board .search-type { padding:12px 16px; border:2px solid #e5e7eb; border-radius:8px; font-size:14px; background:#fff; width:120px; }
+.bs-board .search-input { flex:1; padding:12px 16px; border:2px solid #e5e7eb; border-radius:8px; font-size:14px; }
+.bs-board .search-button { background:#1e40af; color:#fff; border:none; padding:12px 16px; border-radius:8px; font-weight:700; }
+.bs-board .clear-search { background:#64748b; color:#fff; border:none; padding:12px 16px; border-radius:8px; font-weight:700; }
+
+/* ===== 게시판 레이아웃 (이벤트 페이지와 동일한 사이드바 디자인) ===== */
+.bs-board .bs-main-layout { 
+  display: flex; 
+  gap: 20px; 
+  align-items: flex-start; 
+  min-height: 100vh;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.bs-board .bs-sidebar { 
+  width: 200px;
+  background: #fff;
+  border-right: 1px solid #e5e7eb;
+  padding: 20px 14px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  float: left;
+}
+
+.bs-board .bs-sidebar-title { 
+  font-weight: 800;
+  color: #0d47a1;
+  margin-bottom: 16px;
+  font-size: 1.2rem;
+}
+
+.bs-board .bs-sidebar-menu { 
+  list-style: none; 
+  padding: 0; 
+  margin: 0 0 20px 0; 
+}
+
+.bs-board .sidebar-link { 
+  display: block;
+  padding: 10px 12px;
+  margin: 6px 0;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #1f2937;
+  transition: all 0.2s ease;
+  font-size: 0.9em;
+  font-weight: 500;
+  width: 100%;
+  text-align: left;
+  background: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.bs-board .sidebar-link:hover {
+  background: #bbdefb;
+  color: #0d47a1;
+}
+
+.bs-board .sidebar-link.active { 
+  background: #bbdefb; 
+  color: #0d47a1; 
+  font-weight: 700; 
+}
+
+.bs-board .sub-menu { 
+  list-style: none; 
+  margin: 6px 0 0 8px; 
+  padding-left: 10px; 
+  display: none; 
+}
+
+.bs-board .sub-menu.show { 
+  display: block; 
+}
+
+.bs-board .sub-item { 
+  margin: 4px 0; 
+}
+
+.bs-board .sub-link { 
+  display: block; 
+  padding: 8px 10px; 
+  border-radius: 8px; 
+  text-decoration: none; 
+  color: #1f2937;
+  transition: all 0.2s ease;
+  font-size: 0.85em;
+}
+
+.bs-board .sub-link:hover {
+  background: #bbdefb;
+  color: #0d47a1;
+}
+
+.bs-board .sub-link.active { 
+  background: #bbdefb; 
+  color: #0d47a1; 
+  font-weight: 700; 
+}
+
+.loading-container { text-align:center; padding:40px 0; }
+.error-message { background:#fef2f2; border:1px solid #fecaca; color:#991b1b; padding:16px; border-radius:8px; }
+
+.bs-board .post-list, .bs-post-list { background:#fff; border:1px solid #e5e7eb; border-radius:12px; overflow:hidden; }
+.bs-board .post-header, .bs-post-header { 
+  display: grid; 
+  grid-template-columns: 6fr 2fr 2fr 1fr; 
+  padding: 12px 16px; 
+  background: #f8fafc; 
+  color: #374151; 
+  font-weight: 700; 
+  align-items: center;
+}
+.bs-board .post-item, .bs-post-item { 
+  display: grid; 
+  grid-template-columns: 6fr 2fr 2fr 1fr; 
+  padding: 12px 16px; 
+  border-top: 1px solid #f3f4f6; 
+  align-items: center; 
+}
+.bs-board .post-item.pinned, .bs-post-item.pinned { background:#f7fbff; }
+.bs-board .post-title { display:flex; align-items:center; gap:8px; }
+.bs-board .post-link { text-decoration:none; color:#0d47a1; font-weight:600; }
+.bs-board .pin-badge { color:#0d47a1; }
+.bs-board .empty-message, .bs-empty-message { text-align:center; color:#6b7280; padding:24px 0; }
+
+.bs-board .pagination, .bs-pagination { border-top:1px solid #f3f4f6; padding:12px 16px; display:flex; justify-content:space-between; align-items:center; }
+.bs-board .page-btn, .bs-page-btn { padding:8px 12px; border:1px solid #e5e7eb; border-radius:8px; background:#fff; cursor:pointer; }
+.bs-board .page-btn.active, .bs-page-btn.active { background:#bbdefb; color:#0d47a1; border-color:transparent; font-weight:700; }
+.bs-board .page-btn.prev, .bs-board .page-btn.next, .bs-page-btn.prev, .bs-page-btn.next { font-weight:600; }
+
+/* ===== Board Service 버튼 스타일 ===== */
+.bs-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.bs-btn-primary {
+  background: #1e40af;
+  color: white;
+}
+
+.bs-btn-primary:hover {
+  background: #1e3a8a;
+}
+
+.bs-btn-secondary {
+  background: #6b7280;
+  color: white;
+}
+
+.bs-btn-secondary:hover {
+  background: #4b5563;
+}
+
+.bs-btn-outline {
+  background: transparent;
+  color: #1e40af;
+  border: 2px solid #1e40af;
+}
+
+.bs-btn-outline:hover {
+  background: #1e40af;
+  color: white;
+}
+
+.bs-btn-danger {
+  background: #dc2626;
+  color: white;
+}
+
+.bs-btn-danger:hover {
+  background: #b91c1c;
+}
+
+/* 댓글 버튼 스타일 */
+.bs-comment-save-btn {
+  background: #1e40af;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.bs-comment-save-btn:hover {
+  background: #1e3a8a;
+}
+
+.bs-comment-cancel-btn {
+  background: #6b7280;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-left: 8px;
+}
+
+.bs-comment-cancel-btn:hover {
+  background: #4b5563;
+}
+
+.bs-comment-edit-btn {
+  background: #f59e0b;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.bs-comment-edit-btn:hover {
+  background: #d97706;
+}
+
+.bs-comment-delete-btn {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-left: 4px;
+}
+
+.bs-comment-delete-btn:hover {
+  background: #b91c1c;
+}
+
+

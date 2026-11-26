@@ -1,0 +1,82 @@
+{
+  "family": "Board-Web-Task",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::726629337826:role/DugOutTaskExecutionRole",
+
+  "containerDefinitions": [
+    {
+      "name": "board-container",
+      "image": "726629337826.dkr.ecr.ap-northeast-2.amazonaws.com/plan-b/board-service:latest",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 8000,
+          "protocol": "tcp"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/board-task-web",
+          "awslogs-region": "ap-northeast-2",
+          "awslogs-stream-prefix": "ecs",
+          "awslogs-create-group": "true"
+        }
+      },
+      "environment": [
+        {
+          "name": "DJANGO_SETTINGS_MODULE",
+          "value": "board_service.settings"
+        },
+        {
+          "name": "PYTHONUNBUFFERED",
+          "value": "1"
+        }
+      ],
+      "command": ["/app/entrypoint-web.sh"],
+      "secrets": [
+        {
+          "name": "DB_HOST",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:726629337826:secret:prod/board/db-imda0p:host::"
+        },
+        {
+          "name": "DB_NAME",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:726629337826:secret:prod/board/db-imda0p:dbname::"
+        },
+        {
+          "name": "DB_USER",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:726629337826:secret:prod/board/db-imda0p:username::"
+        },
+        {
+          "name": "DB_PASSWORD",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:726629337826:secret:prod/board/db-imda0p:password::"
+        },
+        {
+          "name": "AWS_USER_POOL_ID",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:726629337826:secret:prod/cognito/config-its0k1:cognito_user_pool_id::"
+        },
+        {
+          "name": "AWS_USER_POOL_CLIENT_ID",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:726629337826:secret:prod/cognito/config-its0k1:cognito_client_id::"
+        },
+        {
+          "name": "AWS_REGION",
+          "valueFrom": "arn:aws:secretsmanager:ap-northeast-2:726629337826:secret:prod/cognito/config-its0k1:aws_region::"
+        }
+      ],
+      "healthCheck": {
+        "command": [
+          "CMD-SHELL",
+          "curl -f http://127.0.0.1:8000/healthz || exit 1"
+        ],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 60
+      }
+    }
+  ]
+}

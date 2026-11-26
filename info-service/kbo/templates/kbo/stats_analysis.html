@@ -1,0 +1,195 @@
+{% extends 'kbo/base.html' %}
+
+{% block title %}통계 분석 - KBO 정보 시스템{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-chart-bar me-2"></i>통계 분석</h1>
+            <a href="/info/teams/" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>팀 목록으로
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- 오류 메시지 표시 -->
+{% if error_message %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            {{ error_message }}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- 통계 요약 -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="text-primary">{{ total_teams|default:0 }}</h3>
+                <p class="text-muted">등록된 팀</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="text-success">{{ total_players|default:0 }}</h3>
+                <p class="text-muted">전체 선수</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="text-warning">{{ total_managers|default:0 }}</h3>
+                <p class="text-muted">감독</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h3 class="text-info">{{ avg_players_per_team|default:0|floatformat:1 }}</h3>
+                <p class="text-muted">팀당 평균 선수</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 포지션별 통계 -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>포지션별 선수 분포</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="positionChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>팀별 선수 수</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="teamChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 상세 통계 테이블 -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-table me-2"></i>팀별 상세 통계</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>팀명</th>
+                                <th>전체 선수</th>
+                                <th>투수</th>
+                                <th>포수</th>
+                                <th>내야수</th>
+                                <th>외야수</th>
+                                <th>우타</th>
+                                <th>좌타</th>
+                                <th>우투</th>
+                                <th>좌투</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                                                         {% for team_stat in team_stats %}
+                             <tr>
+                                 <td><strong>{{ team_stat.name }}</strong></td>
+                                 <td>{{ team_stat.player_count }}</td>
+                                 <td>{{ team_stat.pitchers|default:0 }}</td>
+                                 <td>{{ team_stat.catchers|default:0 }}</td>
+                                 <td>{{ team_stat.infielders|default:0 }}</td>
+                                 <td>{{ team_stat.outfielders|default:0 }}</td>
+                                 <td>{{ team_stat.right_batters|default:0 }}</td>
+                                 <td>{{ team_stat.left_batters|default:0 }}</td>
+                                 <td>{{ team_stat.right_pitchers|default:0 }}</td>
+                                 <td>{{ team_stat.left_pitchers|default:0 }}</td>
+                             </tr>
+                             {% empty %}
+                             <tr>
+                                 <td colspan="10" class="text-center text-muted">
+                                     <i class="fas fa-info-circle me-2"></i>
+                                     통계 데이터가 없습니다.
+                                 </td>
+                             </tr>
+                             {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// 포지션별 차트
+const positionCtx = document.getElementById('positionChart').getContext('2d');
+const positionChart = new Chart(positionCtx, {
+    type: 'pie',
+    data: {
+        labels: [{% for pos in position_stats %}'{{ pos.p_position }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+        datasets: [{
+            data: [{% for pos in position_stats %}{{ pos.count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+            backgroundColor: [
+                '#FF6384',
+                '#36A2EB',
+                '#FFCE56',
+                '#4BC0C0'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// 팀별 차트
+const teamCtx = document.getElementById('teamChart').getContext('2d');
+const teamChart = new Chart(teamCtx, {
+    type: 'bar',
+    data: {
+        labels: [{% for team in teams %}'{{ team.team_name }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+        datasets: [{
+            label: '선수 수',
+            data: [{% for team in teams %}{{ team.player_count|default:0 }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+            backgroundColor: '#36A2EB'
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

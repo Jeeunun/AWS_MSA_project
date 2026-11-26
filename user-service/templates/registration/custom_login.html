@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>로그인</title>
+  <!-- Cognito JS (1차) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/amazon-cognito-identity-js/6.3.10/amazon-cognito-identity.min.js" defer></script>
+  <!-- 로딩 실패 시 대체 CDN(2차) -->
+  <script>
+    window.addEventListener('error', function(e){
+      if (String(e?.target?.src||'').includes('amazon-cognito-identity.min.js')) {
+        var s=document.createElement('script');
+        s.src='https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.3.10/dist/amazon-cognito-identity.min.js';
+        s.defer=true;
+        document.head.appendChild(s);
+      }
+    }, true);
+  </script>
+  <style>
+    body { font-family:'맑은 고딕',sans-serif; padding:40px; max-width:400px; margin:auto; background:#f9f9f9; }
+    h1 { text-align:center; }
+    form { background:#fff; padding:20px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.1); }
+    label { display:block; margin-top:15px; font-weight:bold; }
+    input { width:100%; padding:8px; margin-top:5px; box-sizing:border-box; }
+    button { margin-top:20px; width:100%; padding:10px; background:#054cd1; color:#fff; border:none; font-weight:bold; cursor:pointer; }
+    .msg { margin-top:12px; padding:10px; border-radius:6px; display:none; white-space:pre-wrap; }
+    .msg.ok { background:#e9fff2; color:#0a5; }
+    .msg.err { background:#ffecec; color:#b00020; }
+    .sub { margin-top:12px; text-align:center; font-size:.9rem; }
+    .sub a { color:#0366d6; text-decoration:none; }
+  </style>
+</head>
+<body>
+  <h1>로그인</h1>
+
+  <div id="ok"  class="msg ok"></div>
+  <div id="err" class="msg err"></div>
+
+  <!-- 서버 POST 안 함. JS로 Cognito 인증 -->
+  <form id="loginForm" novalidate>
+    {% csrf_token %}
+    <label for="email">이메일</label>
+    <input id="email" name="email" type="email" autocomplete="username" required />
+    <label for="password">비밀번호</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required />
+    <button type="submit" id="btnSignIn">로그인</button>
+  </form>
+
+  <div class="sub">
+    아직 계정이 없나요?
+    <a href="{% url 'custom_signup_page' %}">회원가입</a>
+  </div>
+
+  <script>
+    // ===== 환경값(반드시 실제 값으로 교체) =====
+    const COGNITO_REGION   = 'ap-northeast-2';      // ← 너의 리전
+    const USER_POOL_ID     = 'ap-northeast-2_5l8gegLlp';// ← 너의 User Pool ID
+    const APP_CLIENT_ID    = '28m777op4t7t3ufms2f3197bp4';// ← 너의 App Client ID
+    const REDIRECT_AFTER_LOGIN = '/test_main.html';  // 로그인 성공 후 이동
+
+    // ===== 유틸 =====
+    const $ = (id) => document.getElementById(id);
+    const log = (...a) => { try { console.log('[login]', ...a); } catch(_){} };
+    function show(el, msg){ const n=$(el); n.textContent=msg; n.style.display='block'; }
+    function hide(el){ $(el).style.display='none'; }
+
+    function sanityCheck() {
+      // 설정 누락/오타 검사
+      if (!COGNITO_REGION || !USER_POOL_ID || !APP_CLIENT_ID ||
+          /YOUR_REGION|YOUR_USER_POOL_ID|YOUR_APP_CLIENT_ID/.test(COGNITO_REGION+USER_POOL_ID+APP_CLIENT_ID)) {
+        show('err', '설정 누락: REGION/USER_POOL_ID/APP_CLIENT_ID 값을 실제 값으로 교체하세요.');
+        return false;
+      }
+      // 라이브러리 로드 확인
+      if (!window.AmazonCognitoIdentity || !AmazonCognitoIdentity.CognitoUserPool) {
+        show('err', 'Cognito JS 라이브러리를 불러오지 못했습니다. 네트워크/보안 환경에서 CDN 차단 여부를 확인하세요.');
+        return false;
+      }
+      return true;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      log('페이지 로드');
+      const form = $('loginForm');
+      const btn  = $('btnSignIn');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault(); // 서버 POST 막기
+        hide('ok'); hide('err');
+
+        if (!sanityCheck()) return;
+
+        const email = $('email').value.trim();
+        const password = $('password').value;
+        if (!email || !password) {
+          show('err', '이메일과 비밀번호를 입력하세요.');
+          return;
+        }
+
+        btn.disabled = true;
+        try {
+          log('인증 시작:', email);
+
+          const poolData = { UserPoolId: USER_POOL_ID, ClientId: APP_CLIENT_ID, Storage: window.localStorage };
+          const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+          const authDetails = new AmazonCognitoIdentity.AuthenticationDetails({ Username: email, Password: password });
+          const userData = { Username: email, Pool: userPool, Storage: window.localStorage };
+          const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userData);
+
+          cognitoUser.authenticateUser(authDetails, {
+            onSuccess: function (result) {
+              try {
+                const idToken = result.getIdToken().getJwtToken();
+                const accessToken = result.getAccessToken().getJwtToken();
+                const refreshToken = result.getRefreshToken()?.getToken?.();
+
+                localStorage.setItem('idToken', idToken);
+                localStorage.setItem('accessToken', accessToken);
+                if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
+
+                show('ok', '로그인 성공! 이동 중...');
+                log('로그인 성공, redirect ->', REDIRECT_AFTER_LOGIN);
+                window.location.href = REDIRECT_AFTER_LOGIN;
+              } catch (e) {
+                show('err', '토큰 처리 중 오류: ' + (e?.message || e));
+                btn.disabled = false;
+              }
+            },
+            onFailure: function (err) {
+              btn.disabled = false;
+              let msg = (err && (err.message || err.code)) ? `${err.code || ''} ${err.message || ''}` : '로그인 실패';
+              log('실패:', err);
+              show('err', msg.trim());
+            },
+            newPasswordRequired: function(userAttributes) {
+              delete userAttributes.email_verified;
+              const newPw = prompt('첫 로그인입니다. 새 비밀번호를 입력하세요:');
+              if (!newPw) { btn.disabled = false; show('err','새 비밀번호가 필요합니다.'); return; }
+              cognitoUser.completeNewPasswordChallenge(newPw, userAttributes, this);
+            },
+            mfaRequired: function() {
+              const code = prompt('MFA 코드 입력:');
+              cognitoUser.sendMFACode(code, this);
+            },
+          });
+        } catch (err) {
+          btn.disabled = false;
+          log('예외:', err);
+          show('err', '스크립트 오류: ' + (err?.message || err));
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+
+
+

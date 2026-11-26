@@ -1,0 +1,67 @@
+/* event-service 전용 스타일 (스코프: .es-event ...) */
+
+.es-event .event-layout { min-height:100vh; width:100%; max-width:1400px; margin:0 auto; overflow:hidden; }
+/* .es-event .event-sidebar { width:200px; background:#fff; border-right:1px solid #e5e7eb; padding:20px 14px; position:sticky; top:0; height:100vh; float:left; } */
+.es-event .brand { font-weight:800; color:#0d47a1; margin-bottom:16px; font-size:1.2rem; }
+.es-event .nav-link { display:block; padding:10px 12px; margin:6px 0; border-radius:10px; text-decoration:none; color:#1f2937; transition:all .2s; }
+.es-event .nav-link:hover { background:#bbdefb; color:#0d47a1; }
+.es-event .nav-link.active { background:#bbdefb; color:#0d47a1; font-weight:700; }
+.es-event .data-update { margin-top:20px; font-size:.9em; color:#6b7280; }
+.es-event .badge { display:inline-block; padding:2px 8px; border-radius:999px; background:#bbdefb; color:#0d47a1; font-size:.85em; }
+.es-event .event-content { margin-left:240px; }
+
+/* ===== Event Service 버튼 스타일 ===== */
+.es-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  background: #326faf;
+}
+
+.es-btn-primary {
+  background: #1e40af;
+  color: white;
+}
+
+.es-btn-primary:hover {
+  background: #1e3a8a;
+}
+
+.es-btn-secondary {
+  background: #6b7280;
+  color: white;
+}
+
+.es-btn-secondary:hover {
+  background: #4b5563;
+}
+
+.es-btn-outline {
+  background: transparent;
+  color: #1e40af;
+  border: 2px solid #1e40af;
+}
+
+.es-btn-outline:hover {
+  background: #1e40af;
+  color: white;
+}
+
+.es-btn-danger {
+  background: #dc2626;
+  color: white;
+}
+
+.es-btn-danger:hover {
+  background: #b91c1c;
+}
+

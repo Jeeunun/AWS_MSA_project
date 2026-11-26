@@ -1,0 +1,178 @@
+<!-- templates/registration/signup.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>회원가입</title>
+  <style>
+    body {
+      font-family: '맑은 고딕', sans-serif;
+      padding: 40px;
+      max-width: 480px;
+      margin: auto;
+      background-color: #f9f9f9;
+    }
+    h1 { text-align: center; }
+    form {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-top: 14px;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      box-sizing: border-box;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+    }
+    .row-inline {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .row-inline input:first-child { flex: 1 0 65%; }
+    .row-inline input:last-child  { flex: 0 0 20%; }
+    .dash { flex: 0 0 auto; color:#6b7280; }
+    .helptext { color: #6b7280; font-size: 0.9em; margin-top: 4px; }
+    .errors { color: #b00020; margin-top: 10px; }
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      background-color: #054cd1;
+      color: white;
+      border: none;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .sub {
+      margin-top: 12px;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+    .sub a { color: #0366d6; text-decoration: none; }
+    .messages {
+      margin-bottom: 12px;
+      padding: 10px;
+      border-radius: 6px;
+      background: #e9fff2;
+      color: #0a5;
+    }
+  </style>
+</head>
+<body>
+  <h1>회원가입</h1>
+
+  <form method="post">
+    {% csrf_token %}
+
+    {% if messages %}
+      <div class="messages">
+        {% for m in messages %}{{ m }}{% endfor %}
+      </div>
+    {% endif %}
+
+    {% if form.non_field_errors %}
+      <div class="errors">
+        {% for e in form.non_field_errors %}{{ e }}<br>{% endfor %}
+      </div>
+    {% endif %}
+
+    <label for="{{ form.last_name.id_for_label }}">성</label>
+    {{ form.last_name }}
+
+    <label for="{{ form.first_name.id_for_label }}">이름</label>
+    {{ form.first_name }}
+
+    <label for="{{ form.username.id_for_label }}">아이디</label>
+    {{ form.username }}
+
+    <label for="{{ form.password1.id_for_label }}">비밀번호</label>
+    {{ form.password1 }}
+    {% if form.password1.help_text %}
+      <div class="helptext">{{ form.password1.help_text|safe }}</div>
+    {% endif %}
+
+    <label for="{{ form.password2.id_for_label }}">비밀번호 확인</label>
+    {{ form.password2 }}
+    {% if form.password2.help_text %}
+      <div class="helptext">{{ form.password2.help_text }}</div>
+    {% endif %}
+
+    <label for="{{ form.email.id_for_label }}">이메일</label>
+    {{ form.email }}
+
+    <label for="{{ form.tel.id_for_label }}">전화번호</label>
+    {{ form.tel }}
+    <div class="helptext">숫자만 입력 가능합니다. (예: 01012345678)</div>
+
+    <label>주민번호 앞6자리와 뒷 첫번째자리</label>
+    <div class="row-inline">
+      {{ form.birth }}
+      <span class="dash">-</span>
+      {{ form.gender_code }}
+    </div>
+    {% if form.birth.help_text %}
+      <div class="helptext">{{ form.birth.help_text }}</div>
+    {% endif %}
+
+    <label for="{{ form.team.id_for_label }}">응원팀</label>
+    {{ form.team }}
+
+    {% if form.errors %}
+      <div class="errors">
+        {% for field, errs in form.errors.items %}
+          {% for e in errs %}{{ e }}<br>{% endfor %}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <button type="submit">가입하기</button>
+  </form>
+
+  <div class="sub">
+    이미 계정이 있나요? <a href="{% url 'login' %}">로그인</a>
+  </div>
+
+  <script>
+    // 전화번호: 숫자만 허용 + 모바일 키패드 유도 + 최대 11자리(필요 시 조정)
+    (function() {
+      var tel = document.getElementById('id_tel');
+      if (!tel) return;
+
+      tel.setAttribute('inputmode', 'numeric');   // 모바일 숫자 키패드
+      tel.setAttribute('pattern', '[0-9]+');      // 숫자만
+      tel.setAttribute('title', '숫자만 입력 가능합니다.');
+      tel.setAttribute('maxlength', '11');        // 한국 휴대폰 기준 (필요시 변경)
+
+      // 실시간으로 숫자 이외 제거
+      function filterDigits(e) {
+        var v = e.target.value;
+        var digits = v.replace(/\D+/g, '');
+        if (v !== digits) e.target.value = digits;
+      }
+      tel.addEventListener('input', filterDigits);
+      tel.addEventListener('paste', function(e) {
+        // 붙여넣기도 숫자만
+        requestAnimationFrame(function(){ filterDigits({ target: tel }); });
+      });
+    })();
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+

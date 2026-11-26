@@ -1,0 +1,335 @@
+{% extends 'kbo/base.html' %}
+
+{% block title %}팀 비교 - KBO 정보 시스템{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-balance-scale me-2"></i>팀 비교</h1>
+            <a href="/info/teams/" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>팀 목록으로
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- 팀 선택 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-cogs me-2"></i>비교할 팀 선택</h5>
+            </div>
+            <div class="card-body">
+                <form id="comparisonForm">
+                    <div class="row">
+                                                 <div class="col-md-5">
+                             <label for="team1" class="form-label">홈 팀</label>
+                             <select class="form-select" id="team1" name="team1" required>
+                                 <option value="">홈 팀을 선택하세요</option>
+                                 {% for team in teams %}
+                                 <option value="{{ team.team_code }}" {% if request.GET.team1 == team.team_code %}selected{% endif %}>
+                                     {{ team.team_name }}
+                                 </option>
+                                 {% endfor %}
+                             </select>
+                         </div>
+                         <div class="col-md-2 d-flex align-items-end justify-content-center">
+                             <span class="h4 text-muted">VS</span>
+                         </div>
+                         <div class="col-md-5">
+                             <label for="team2" class="form-label">어웨이 팀</label>
+                             <select class="form-select" id="team2" name="team2" required>
+                                 <option value="">어웨이 팀을 선택하세요</option>
+                                 {% for team in teams %}
+                                 <option value="{{ team.team_code }}" {% if request.GET.team2 == team.team_code %}selected{% endif %}>
+                                     {{ team.team_name }}
+                                 </option>
+                                 {% endfor %}
+                             </select>
+                         </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-12 text-center">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-chart-line me-2"></i>팀 비교하기
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if team1 and team2 %}
+<!-- 비교 결과 -->
+<div class="row">
+         <!-- 홈 팀 정보 -->
+     <div class="col-md-6">
+         <div class="card">
+             <div class="card-header bg-primary text-white">
+                 <h5 class="mb-0"><i class="fas fa-home me-2"></i>{{ team1.team_name }} (홈)</h5>
+             </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="stat-item">
+                            <h3 class="text-primary">{{ team1_stats.total_players }}</h3>
+                            <p class="text-muted">전체 선수</p>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="stat-item">
+                            <h3 class="text-success">{{ team1_stats.pitchers }}</h3>
+                            <p class="text-muted">투수</p>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="stat-item">
+                            <h3 class="text-warning">{{ team1_stats.position_players }}</h3>
+                            <p class="text-muted">야수</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="row">
+                    <div class="col-6">
+                        <p class="mb-1"><strong>포지션별 분포:</strong></p>
+                        <ul class="list-unstyled">
+                            <li>포수: {{ team1_stats.catchers }}명</li>
+                            <li>내야수: {{ team1_stats.infielders }}명</li>
+                            <li>외야수: {{ team1_stats.outfielders }}명</li>
+                        </ul>
+                    </div>
+                    <div class="col-6">
+                        <p class="mb-1"><strong>투타별 분포:</strong></p>
+                        <ul class="list-unstyled">
+                            <li>우타: {{ team1_stats.right_batters }}명</li>
+                            <li>좌타: {{ team1_stats.left_batters }}명</li>
+                            <li>우투: {{ team1_stats.right_pitchers }}명</li>
+                            <li>좌투: {{ team1_stats.left_pitchers }}명</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+         <!-- 어웨이 팀 정보 -->
+     <div class="col-md-6">
+         <div class="card">
+             <div class="card-header bg-success text-white">
+                 <h5 class="mb-0"><i class="fas fa-plane me-2"></i>{{ team2.team_name }} (어웨이)</h5>
+             </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="stat-item">
+                            <h3 class="text-success">{{ team2_stats.total_players }}</h3>
+                            <p class="text-muted">전체 선수</p>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="stat-item">
+                            <h3 class="text-success">{{ team2_stats.pitchers }}</h3>
+                            <p class="text-muted">투수</p>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="stat-item">
+                            <h3 class="text-warning">{{ team2_stats.position_players }}</h3>
+                            <p class="text-muted">야수</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="row">
+                    <div class="col-6">
+                        <p class="mb-1"><strong>포지션별 분포:</strong></p>
+                        <ul class="list-unstyled">
+                            <li>포수: {{ team2_stats.catchers }}명</li>
+                            <li>내야수: {{ team2_stats.infielders }}명</li>
+                            <li>외야수: {{ team2_stats.outfielders }}명</li>
+                        </ul>
+                    </div>
+                    <div class="col-6">
+                        <p class="mb-1"><strong>투타별 분포:</strong></p>
+                        <ul class="list-unstyled">
+                            <li>우타: {{ team2_stats.right_batters }}명</li>
+                            <li>좌타: {{ team2_stats.left_batters }}명</li>
+                            <li>우투: {{ team2_stats.right_pitchers }}명</li>
+                            <li>좌투: {{ team2_stats.left_pitchers }}명</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 비교 차트 -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>선수 수 비교</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="comparisonChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-warning text-white">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>포지션별 분포 비교</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="positionComparisonChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 상세 비교 테이블 -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0"><i class="fas fa-table me-2"></i>상세 비교</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>구분</th>
+                                <th>{{ team1.team_name }}</th>
+                                <th>{{ team2.team_name }}</th>
+                                <th>차이</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>전체 선수</strong></td>
+                                <td>{{ team1_stats.total_players }}명</td>
+                                <td>{{ team2_stats.total_players }}명</td>
+                                                                 <td>
+                                     {% if comparison_stats.total_players_diff > 0 %}
+                                         <span class="text-success">+{{ comparison_stats.total_players_diff }}명</span>
+                                     {% elif comparison_stats.total_players_diff < 0 %}
+                                         <span class="text-danger">{{ comparison_stats.total_players_diff }}명</span>
+                                     {% else %}
+                                         <span class="text-muted">동일</span>
+                                     {% endif %}
+                                 </td>
+                            </tr>
+                            <tr>
+                                <td><strong>투수</strong></td>
+                                <td>{{ team1_stats.pitchers }}명</td>
+                                <td>{{ team2_stats.pitchers }}명</td>
+                                                                 <td>
+                                     {% if comparison_stats.pitchers_diff > 0 %}
+                                         <span class="text-success">+{{ comparison_stats.pitchers_diff }}명</span>
+                                     {% elif comparison_stats.pitchers_diff < 0 %}
+                                         <span class="text-danger">{{ comparison_stats.pitchers_diff }}명</span>
+                                     {% else %}
+                                         <span class="text-muted">동일</span>
+                                     {% endif %}
+                                 </td>
+                            </tr>
+                            <tr>
+                                <td><strong>야수</strong></td>
+                                <td>{{ team1_stats.position_players }}명</td>
+                                <td>{{ team2_stats.position_players }}명</td>
+                                                                 <td>
+                                     {% if comparison_stats.position_players_diff > 0 %}
+                                         <span class="text-success">+{{ comparison_stats.position_players_diff }}명</span>
+                                     {% elif comparison_stats.position_players_diff < 0 %}
+                                         <span class="text-danger">{{ comparison_stats.position_players_diff }}명</span>
+                                     {% else %}
+                                         <span class="text-muted">동일</span>
+                                     {% endif %}
+                                 </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+{% if team1 and team2 %}
+// 비교 차트
+const comparisonCtx = document.getElementById('comparisonChart').getContext('2d');
+const comparisonChart = new Chart(comparisonCtx, {
+    type: 'bar',
+    data: {
+        labels: ['전체 선수', '투수', '야수'],
+        datasets: [{
+            label: '{{ team1.team_name }}',
+            data: [{{ team1_stats.total_players }}, {{ team1_stats.pitchers }}, {{ team1_stats.position_players }}],
+            backgroundColor: '#007bff'
+        }, {
+            label: '{{ team2.team_name }}',
+            data: [{{ team2_stats.total_players }}, {{ team2_stats.pitchers }}, {{ team2_stats.position_players }}],
+            backgroundColor: '#28a745'
+        }]
+    },
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// 포지션별 분포 비교 차트
+const positionComparisonCtx = document.getElementById('positionComparisonChart').getContext('2d');
+const positionComparisonChart = new Chart(positionComparisonCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['{{ team1.team_name }}', '{{ team2.team_name }}'],
+        datasets: [{
+            data: [{{ team1_stats.total_players }}, {{ team2_stats.total_players }}],
+            backgroundColor: ['#007bff', '#28a745']
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+{% endif %}
+
+// 폼 제출 처리
+document.getElementById('comparisonForm').addEventListener('submit', function(e) {
+    const team1 = document.getElementById('team1').value;
+    const team2 = document.getElementById('team2').value;
+    
+    if (team1 === team2) {
+        e.preventDefault();
+        alert('서로 다른 팀을 선택해주세요.');
+        return false;
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,274 @@
+/* info-service 전용 스타일 (통일된 사이드바 사용) */
+
+.is-info .info-layout { min-height:100vh; width:100%; max-width:1400px; margin:0 auto; overflow:hidden; }
+.is-info .info-sidebar { width:200px; background:#fff; border-right:1px solid #e5e7eb; padding:20px 14px; position:sticky; top:0; height:100vh; float:left; }
+.is-info .brand { font-weight:800; color:#0d47a1; margin-bottom:16px; font-size:1.2rem; }
+.is-info .nav-link { display:block; padding:10px 12px; margin:6px 0; border-radius:10px; text-decoration:none; color:#1f2937; transition:all .2s ease; }
+.is-info .nav-link:hover { background:#bbdefb; color:#0d47a1; }
+.is-info .nav-link.active { background:#bbdefb; color:#0d47a1; font-weight:700; }
+.is-info .info-content { margin-left:240px; }
+
+/* ===== Info Service 버튼 스타일 ===== */
+.is-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.is-btn-primary {
+  background: #1e40af;
+  color: white;
+}
+
+.is-btn-primary:hover {
+  background: #1e3a8a;
+}
+
+.is-btn-secondary {
+  background: #6b7280;
+  color: white;
+}
+
+.is-btn-secondary:hover {
+  background: #4b5563;
+}
+
+.is-btn-outline-primary {
+  background: transparent;
+  color: #1e40af;
+  border: 2px solid #1e40af;
+}
+
+.is-btn-outline-primary:hover {
+  background: #1e40af;
+  color: white;
+}
+
+.is-btn-outline-secondary {
+  background: transparent;
+  color: #6b7280;
+  border: 2px solid #6b7280;
+}
+
+.is-btn-outline-secondary:hover {
+  background: #6b7280;
+  color: white;
+}
+
+.is-btn-danger {
+  background: #dc2626;
+  color: white;
+}
+
+.is-btn-danger:hover {
+  background: #b91c1c;
+}
+
+.is-btn-sm {
+  padding: 8px 16px;
+  font-size: 12px;
+}
+
+.is-btn-lg {
+  padding: 16px 32px;
+  font-size: 16px;
+}
+
+/* ===== Event 스타일과 동일한 Info 레이아웃 ===== */
+.info-layout {
+  min-height: 100vh;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.info-sidebar {
+  width: 200px;
+  background: #fff;
+  border-right: 1px solid #e5e7eb;
+  padding: 20px 14px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  float: left;
+}
+
+.brand {
+  font-weight: 800;
+  color: #0d47a1;
+  margin-bottom: 16px;
+  font-size: 1.2rem;
+}
+
+.nav {
+  margin-bottom: 20px;
+}
+
+.nav-link {
+  display: block;
+  padding: 10px 12px;
+  margin: 6px 0;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #1f2937;
+  transition: all 0.2s ease;
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  background: #bbdefb;
+  color: #0d47a1;
+}
+
+.nav-link.active {
+  background: #bbdefb;
+  color: #0d47a1;
+  font-weight: 700;
+}
+
+.data-update {
+  margin-top: 20px;
+  font-size: 0.9em;
+  color: #6b7280;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #bbdefb;
+  color: #0d47a1;
+  font-size: 0.85em;
+}
+
+.info-content {
+  margin-left: 240px;
+}
+
+/* 선수 검색 관련 */
+.is-info .search-form { background:#fff; border-radius:12px; padding:20px; margin-bottom:20px; }
+.is-info .form-group { margin-bottom:16px; }
+.is-info .form-label { display:block; margin-bottom:8px; font-weight:600; color:#374151; }
+.is-info .form-input, .is-info .form-select { width:100%; padding:12px; border:2px solid #e5e7eb; border-radius:8px; font-size:14px; }
+.is-info .form-input:focus, .is-info .form-select:focus { outline:none; border-color:#1e40af; }
+.is-info .search-button { background:#1e40af; color:#fff; border:none; padding:12px 24px; border-radius:8px; font-weight:600; cursor:pointer; }
+.is-info .search-button:hover { background:#1e3a8a; }
+
+/* 선수 목록 */
+.is-info .player-list { background:#fff; border-radius:12px; overflow:hidden; }
+.is-info .player-item { padding:16px; border-bottom:1px solid #f3f4f6; display:flex; align-items:center; gap:16px; }
+.is-info .player-item:last-child { border-bottom:none; }
+.is-info .player-info { flex:1; }
+.is-info .player-name { font-weight:600; color:#1f2937; margin-bottom:4px; }
+.is-info .player-details { color:#6b7280; font-size:14px; }
+.is-info .player-actions { display:flex; gap:8px; }
+
+/* 통계 분석 */
+.is-info .stats-container { background:#fff; border-radius:12px; padding:20px; margin-bottom:20px; }
+.is-info .stats-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:16px; margin-bottom:20px; }
+.is-info .stat-card { background:#f8fafc; border-radius:8px; padding:16px; text-align:center; }
+.is-info .stat-value { font-size:2rem; font-weight:700; color:#1e40af; margin-bottom:4px; }
+.is-info .stat-label { color:#6b7280; font-size:14px; }
+.is-info .chart-container { position:relative; height:400px; margin-top:20px; }
+
+/* 팀 관련 */
+.is-info .team-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:20px; }
+.is-info .team-card { background:#fff; border-radius:12px; padding:20px; border:1px solid #e5e7eb; }
+.is-info .team-header { display:flex; align-items:center; gap:12px; margin-bottom:16px; }
+.is-info .team-logo { width:40px; height:40px; border-radius:50%; background:#f3f4f6; }
+.is-info .team-name { font-weight:600; color:#1f2937; }
+.is-info .team-stats { display:grid; grid-template-columns:repeat(2, 1fr); gap:12px; }
+.is-info .team-stat { text-align:center; }
+.is-info .team-stat-value { font-weight:600; color:#1e40af; }
+.is-info .team-stat-label { color:#6b7280; font-size:12px; }
+
+/* 선수 이미지 관련 스타일 */
+.is-info .player-image {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 16px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid #e5e7eb;
+  position: relative;
+}
+
+.is-info .player-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.is-info .player-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  color: #9ca3af;
+}
+
+.is-info .player-icon {
+  font-size: 3rem;
+  margin-bottom: 4px;
+}
+
+.is-info .no-image-text {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.is-info .player-profile {
+  text-align: center;
+  padding: 20px;
+  border-right: 1px solid #e5e7eb;
+}
+
+.is-info .player-name {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 8px;
+}
+
+.is-info .player-team {
+  color: #6b7280;
+  margin-bottom: 12px;
+  font-size: 1rem;
+}
+
+.is-info .position-badge {
+  display: inline-block;
+  background: #1e40af;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.is-info .number-badge {
+  display: inline-block;
+  background: #f3f4f6;
+  color: #1f2937;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+

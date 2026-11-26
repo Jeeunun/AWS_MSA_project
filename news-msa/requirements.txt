@@ -1,0 +1,16 @@
+# 웹/크롤링
+requests==2.32.3
+python-dotenv==1.0.1
+
+# 웹앱
+django==5.2.4
+gunicorn==22.0.0
+cryptography==43.0.1
+
+# REST Framework & API
+djangorestframework==3.15.2
+django-cors-headers==4.3.1
+PyJWT==2.8.0
+
+# DB
+pymysql==1.1.1

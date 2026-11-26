@@ -1,0 +1,61 @@
+<!-- templates/events/result.html -->
+{% extends "events/base_events.html" %}
+{% block title %}경기일정 · 결과{% endblock %}
+{% block nav_results %}active{% endblock %}
+
+{% block content %}
+  <h1>경기일정 · 결과</h1>
+
+  <form class="toolbar" method="get">
+    <label>일자 선택</label>
+    <input class="input" type="date" name="date" value="{{ selected_date }}" />
+    <button class="btn" type="submit">필터</button>
+    {% if selected_date %}
+      <a class="btn" href="{% url 'events:results' %}" style="background:#64748b">초기화</a>
+    {% endif %}
+    <span class="muted" style="margin-left:auto">오늘: {{ today|date:"Y-m-d" }}</span>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>일시</th>
+        <th>구장</th>
+        <th>원정</th>
+        <th>원정점수</th>
+        <th>홈</th>
+        <th>홈점수</th>
+        <th>상태</th>
+        <th>승</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for g in results %}
+      <tr>
+        <td>{{ g.date|date:"Y-m-d" }} {{ g.start_time }}</td>
+        <td>{{ g.stadium }}</td>
+        <td>{{ g.away_team }}</td>
+        <td>{{ g.at_score|default:"-" }}</td>
+        <td>{{ g.home_team }}</td>
+        <td>{{ g.ht_score|default:"-" }}</td>
+        <td>{{ g.status }}</td>
+        <td>{{ g.winner|default:"-" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="8" class="muted">표시할 경기가 없습니다.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if results.paginator.num_pages > 1 %}
+  <div class="paging">
+    {% if results.has_previous %}
+      <a href="?{% if selected_date %}date={{ selected_date }}&{% endif %}page={{ results.previous_page_number }}">이전</a>
+    {% endif %}
+    <span class="current">{{ results.number }} / {{ results.paginator.num_pages }}</span>
+    {% if results.has_next %}
+      <a href="?{% if selected_date %}date={{ selected_date }}&{% endif %}page={{ results.next_page_number }}">다음</a>
+    {% endif %}
+  </div>
+  {% endif %}
+{% endblock %}

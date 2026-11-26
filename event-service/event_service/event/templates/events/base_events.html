@@ -1,0 +1,63 @@
+<!-- templates/events/base_events.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>{% block title %}EVENT{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{--b900:#0d47a1;--b700:#1565c0;--b200:#bbdefb;--bg:#f0f6fc}
+    *{box-sizing:border-box}
+    body{margin:0; font-family:system-ui, 'Segoe UI', Arial, sans-serif; background:var(--bg); color:#111}
+    .layout{display:flex; min-height:100vh}
+    .sidebar{
+      width:240px; background:#fff; border-right:1px solid #e5e7eb; padding:20px 14px; position:sticky; top:0; height:100vh;
+    }
+    .brand{font-weight:800; color:var(--b900); margin-bottom:16px}
+    .nav a{
+      display:block; padding:10px 12px; margin:6px 0; border-radius:10px; text-decoration:none; color:#1f2937;
+    }
+    .nav a:hover{background:var(--b200); color:var(--b900)}
+    .nav a.active{background:var(--b200); color:var(--b900); font-weight:700}
+    .content{flex:1; padding:24px}
+    h1{margin:0 0 16px; color:var(--b900)}
+    table{width:100%; border-collapse:collapse; background:#fff; border-radius:12px; overflow:hidden}
+    th,td{border-bottom:1px solid #eee; padding:10px; text-align:center}
+    th{background:#f8fafc; color:#111}
+    tr:hover{background:#f9fbff}
+    .toolbar{display:flex; gap:10px; align-items:center; margin-bottom:12px}
+    .input, select{
+      padding:10px 12px; border:1.5px solid #d1d5db; border-radius:10px; outline:none;
+    }
+    .btn{
+      border:none; padding:10px 14px; border-radius:10px; cursor:pointer;
+      background:var(--b700); color:#fff;
+    }
+    .muted{color:#6b7280}
+    .badge{display:inline-block; padding:2px 8px; border-radius:999px; background:var(--b200); color:var(--b900); font-size:.85em}
+    .paging{margin-top:14px; display:flex; gap:8px; justify-content:center}
+    .paging a,.paging span{padding:6px 10px; border-radius:8px; text-decoration:none; border:1px solid #e5e7eb; background:#fff; color:#111}
+    .paging .current{background:var(--b200); color:var(--b900); border-color:transparent}
+  </style>
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">⚾ KBO Event</div>
+      <nav class="nav">
+        <a href="{% url 'events:home' %}" class="{% block nav_home %}{% endblock %}">대시보드</a>
+        <a href="{% url 'events:participate' %}" class="{% block nav_participate %}{% endblock %}">이벤트 참여하기</a>
+        <a href="{% url 'events:results' %}" class="{% block nav_results %}{% endblock %}">경기일정 · 결과</a>
+        <a href="{% url 'events:ranks' %}" class="{% block nav_ranks %}{% endblock %}">전체순위 · 공격/수비</a>
+      </nav>
+      <div class="muted" style="margin-top:20px; font-size:.9em">
+        데이터 갱신: <span class="badge">{% now "Y-m-d H:i" %}</span>
+      </div>
+    </aside>
+    <main class="content">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</body>
+</html>

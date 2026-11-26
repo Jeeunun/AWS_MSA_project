@@ -1,0 +1,21 @@
+# 모든 텍스트 파일을 LF로 정규화
+* text=auto
+
+# 쉘 스크립트는 항상 LF 사용
+*.sh text eol=lf
+
+# Python 파일도 LF 사용
+*.py text eol=lf
+
+# 설정 파일들도 LF 사용
+*.txt text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.conf text eol=lf
+*.cfg text eol=lf
+*.ini text eol=lf
+*.env text eol=lf
+*.dockerfile text eol=lf
+Dockerfile text eol=lf

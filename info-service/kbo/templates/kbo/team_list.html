@@ -1,0 +1,170 @@
+{% extends 'kbo/base.html' %}
+
+{% block title %}KBO 팀 목록 - KBO 정보 시스템{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-baseball-ball me-2"></i>KBO 팀 목록</h1>
+            <div>
+                <button class="btn btn-success me-2" onclick="refreshData()">
+                    <i class="fas fa-sync-alt me-1"></i>데이터 새로고침
+                </button>
+                <a href="/info/search/" class="btn btn-primary">
+                    <i class="fas fa-search me-1"></i>선수 검색
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    {% for team in teams %}
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100 team-card">
+                         <div class="card-header bg-primary text-white">
+                 <h5 class="card-title mb-0">
+                     <i class="fas fa-users me-2"></i>{{ team.team_name }}
+                 </h5>
+             </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <p class="mb-1"><strong>팀 코드:</strong></p>
+                        <p class="text-muted">{{ team.team_code }}</p>
+                    </div>
+                    <div class="col-6">
+                        <p class="mb-1"><strong>홈구장:</strong></p>
+                        <p class="text-muted">
+                            {% if team.team_code == 'KIA' %}광주기아챔피언스필드
+                            {% elif team.team_code == 'LG' %}잠실야구장
+                            {% elif team.team_code == 'SSG' %}인천SSG랜더스필드
+                            {% elif team.team_code == 'LT' %}사직야구장
+                            {% elif team.team_code == 'WO' %}고척스카이돔
+                            {% elif team.team_code == 'KT' %}수원KT위즈파크
+                            {% elif team.team_code == 'NC' %}창원NC파크
+                            {% elif team.team_code == 'DS' %}잠실야구장
+                            {% elif team.team_code == 'SS' %}대구삼성라이온즈파크
+                            {% elif team.team_code == 'HH' %}대전한화생명이글스파크
+                            {% else %}정보 없음{% endif %}
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-12">
+                        <p class="mb-1"><strong>감독:</strong></p>
+                        <p class="text-muted">
+                            {% if team.team_code == 'KIA' %}김기태
+                            {% elif team.team_code == 'LG' %}염경엽
+                            {% elif team.team_code == 'SSG' %}김원형
+                            {% elif team.team_code == 'LT' %}김태형
+                            {% elif team.team_code == 'WO' %}홍원기
+                            {% elif team.team_code == 'KT' %}이강철
+                            {% elif team.team_code == 'NC' %}강인권
+                            {% elif team.team_code == 'DS' %}이승엽
+                            {% elif team.team_code == 'SS' %}박한이
+                            {% elif team.team_code == 'HH' %}정원삼
+                            {% else %}정보 없음{% endif %}
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-12">
+                        <p class="mb-1"><strong>등록 선수:</strong></p>
+                        <p class="text-muted">{{ team.player_count|default:0 }}명</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="d-grid gap-2">
+                    {% if team.team_code %}
+                        <a href="{% url 'team_detail' team.team_code %}" class="btn btn-outline-primary">
+                            <i class="fas fa-eye me-1"></i>팀 상세보기
+                        </a>
+                    {% else %}
+                        <button class="btn btn-outline-secondary" disabled>
+                            <i class="fas fa-eye me-1"></i>팀코드 없음
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info text-center">
+            <i class="fas fa-info-circle me-2"></i>
+            등록된 팀이 없습니다. 크롤링을 실행하여 데이터를 수집해주세요.
+        </div>
+        <div class="text-center">
+            <button class="btn btn-success btn-lg" onclick="runCrawling()">
+                <i class="fas fa-download me-2"></i>데이터 크롤링 시작
+            </button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- 통계 요약 -->
+{% if teams %}
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>전체 통계</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3">
+                        <div class="stat-item">
+                            <h3 class="text-primary">{{ teams.count }}</h3>
+                            <p class="text-muted">등록된 팀</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-item">
+                            <h3 class="text-success">{{ total_players|default:0 }}</h3>
+                            <p class="text-muted">전체 선수</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-item">
+                            <h3 class="text-warning">{{ total_managers|default:0 }}</h3>
+                            <p class="text-muted">감독</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-item">
+                            <h3 class="text-info">{{ last_update|default:"정보 없음" }}</h3>
+                            <p class="text-muted">최종 업데이트</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function refreshData() {
+    if (confirm('데이터를 새로고침하시겠습니까? 이 작업은 시간이 걸릴 수 있습니다.')) {
+        // 데이터 새로고침 로직 (AJAX 호출 등)
+        location.reload();
+    }
+}
+
+function runCrawling() {
+    if (confirm('KBO 데이터 크롤링을 시작하시겠습니까? 이 작업은 시간이 걸릴 수 있습니다.')) {
+        // 크롤링 실행 로직
+        alert('크롤링이 시작되었습니다. 완료될 때까지 기다려주세요.');
+        // 실제로는 AJAX로 크롤링 상태를 확인하는 로직이 필요
+    }
+}
+</script>
+{% endblock %}

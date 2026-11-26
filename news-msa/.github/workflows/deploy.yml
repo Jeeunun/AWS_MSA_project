@@ -1,0 +1,181 @@
+name: Run Build, migrate, deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ap-northeast-2
+  ECR_NAMESPACE: plan-b
+  ECR_REPOSITORY: news-service
+  ECS_CLUSTER: DugOut-Cluster
+  ECS_SERVICE: News-Web-Task-service
+  CONTAINER_NAME: news-service
+  SUBNETS: "subnet-0a0bea261214e5814,subnet-0fbd7b48687332ca2"
+  SECURITY_GROUPS: "sg-033b345fbf0c14c59"
+  WEB_TASKDEF_FILE: aws/news-task.json
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Compute tags & IMAGE_URIs
+        id: vars
+        run: |
+          set -euo pipefail
+          NS="${{ env.ECR_NAMESPACE }}"; REPO="${{ env.ECR_REPOSITORY }}"
+          NS="${NS#/}"; REPO="${REPO#/}"
+          if [ -n "$NS" ]; then IMG_PATH="$NS/$REPO"; else IMG_PATH="$REPO"; fi
+
+          SHA="${{ github.sha }}"
+          SHORT_SHA="${SHA::7}"
+          BRANCH="${GITHUB_REF#refs/heads/}"
+          [ "$BRANCH" = "main" ] && BRANCH="latest"
+
+          REG="${{ steps.login-ecr.outputs.registry }}"
+
+          echo "image_sha=$REG/$IMG_PATH:$SHA"       >> $GITHUB_OUTPUT
+          echo "image_branch=$REG/$IMG_PATH:$BRANCH" >> $GITHUB_OUTPUT
+          echo "short_sha=$SHORT_SHA"                >> $GITHUB_OUTPUT
+
+      - name: Build and Push to ECR
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: ${{ github.event_name == 'push' }}
+          tags: |
+            ${{ steps.vars.outputs.image_sha }}
+            ${{ steps.vars.outputs.image_branch }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # 새 이미지로 웹 태스크 정의 생성/등록
+      - name: Render web task definition
+        id: render-web
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: ${{ env.WEB_TASKDEF_FILE }}
+          container-name: ${{ env.CONTAINER_NAME }}
+          image: ${{ steps.vars.outputs.image_sha }}
+
+      - name: Register rendered task definition
+        id: register-web
+        run: |
+          set -euo pipefail
+          sudo apt-get update && sudo apt-get install -y jq
+          RENDERED="${{ steps.render-web.outputs.task-definition }}"
+          jq '
+            if .tags == null or (.tags | length == 0) then del(.tags) else . end
+            | del(.taskDefinitionArn,.revision,.status,.registeredAt,.registeredBy,.requiresAttributes,.compatibilities)
+          ' "$RENDERED" > taskdef-clean.json
+
+          TD_ARN=$(aws ecs register-task-definition \
+            --cli-input-json file://taskdef-clean.json \
+            --query 'taskDefinition.taskDefinitionArn' --output text)
+          echo "td_arn=$TD_ARN" >> $GITHUB_OUTPUT
+
+
+      # 마이그레이션 (one-off task)
+      - name: Run DB migrations (one-off)
+        run: |
+          set -euo pipefail
+          command -v jq >/dev/null 2>&1 || { sudo apt-get update && sudo apt-get install -y jq; }
+
+          OVERRIDES=$(jq -n --arg n "${{ env.CONTAINER_NAME }}" \
+            '{"containerOverrides":[{"name":$n,"command":["python","/app/manage.py","migrate","--noinput","--verbosity=2"] } ] }')
+
+          RUN=$(aws ecs run-task \
+            --cluster "${{ env.ECS_CLUSTER }}" \
+            --launch-type FARGATE \
+            --network-configuration "awsvpcConfiguration={subnets=[${{ env.SUBNETS }}],securityGroups=[${{ env.SECURITY_GROUPS }}],assignPublicIp=DISABLED}" \
+            --task-definition "${{ steps.register-web.outputs.td_arn }}" \
+            --overrides "$OVERRIDES")
+
+          TASK=$(echo "$RUN" | jq -r '.tasks[0].taskArn')
+          [ -n "$TASK" ] && [ "$TASK" != "null" ] || { echo "Migration task failed to start"; echo "$RUN" | jq .; exit 1; }
+
+          aws ecs wait tasks-stopped --cluster "${{ env.ECS_CLUSTER }}" --tasks "$TASK"
+
+           DESC=$(aws ecs describe-tasks --cluster "${{ env.ECS_CLUSTER }}" --tasks "$TASK")
+          echo "TASK STOPPED REASON:";    echo "$DESC" | jq -r '.tasks[0].stoppedReason'
+          echo "CONTAINER REASONS:";      echo "$DESC" | jq -r '.tasks[0].containers[] | {name, lastStatus, exitCode, reason}'
+
+          EXIT=$(echo "$DESC" | jq -r '.tasks[0].containers[] | select(.name=="'${{ env.CONTAINER_NAME }}'") | .exitCode // empty')
+              [ -n "${EXIT:-}" ] || { echo "Migration failed: container exitCode is null (container never started or name mismatch)"; exit 1; }
+              [ "$EXIT" = "0" ] || { echo "Migration failed: exit $EXIT"; exit 1; }
+
+      # 서비스 생성/배포
+      - name: Ensure ECS service-linked role
+        run: |
+          aws iam get-role --role-name AWSServiceRoleForECS >/dev/null 2>&1 || \
+          aws iam create-service-linked-role --aws-service-name ecs.amazonaws.com
+
+      - name: Preflight ELB target group
+        run: |
+          set -euo pipefail
+          TG="${{ secrets.ALB_TG_ARN }}"
+          [ -n "$TG" ] || { echo "::error::ALB_TG_ARN secret empty"; exit 1; }
+          TYPE=$(aws elbv2 describe-target-groups --target-group-arns "$TG" \
+                 --query 'TargetGroups[0].TargetType' --output text)
+          [ "$TYPE" = "ip" ] || { echo "::error::TargetGroup must be ip (got $TYPE)"; exit 1; }
+
+      - name: Ensure ECS service exists (create if missing)
+        run: |
+          set -euo pipefail
+          CL="${{ env.ECS_CLUSTER }}"
+          SVC="${{ env.ECS_SERVICE }}"
+          TG="${{ secrets.ALB_TG_ARN }}"
+
+          MISS=$(aws ecs describe-services --cluster "$CL" --services "$SVC" \
+                 --query 'failures[?reason==`MISSING`]' --output text || true)
+
+          if [ -n "$MISS" ]; then
+            aws ecs create-service \
+              --cluster "$CL" \
+              --service-name "$SVC" \
+              --task-definition "${{ steps.register-web.outputs.td_arn }}" \
+              --launch-type FARGATE \
+              --desired-count 1 \
+              --network-configuration "awsvpcConfiguration={subnets=[${{ env.SUBNETS }}],securityGroups=[${{ env.SECURITY_GROUPS }}],assignPublicIp=DISABLED}" \
+              --load-balancers "targetGroupArn=$TG,containerName=${{ env.CONTAINER_NAME }},containerPort=8003" \
+              --health-check-grace-period-seconds 60
+          fi
+
+          aws ecs wait services-stable --cluster "$CL" --services "$SVC"
+
+      - name: Update and Deploy to ECS service
+        run: |
+          set -euo pipefail
+          aws ecs update-service \
+            --cluster "${{ env.ECS_CLUSTER }}" \
+            --service "${{ env.ECS_SERVICE }}" \
+            --task-definition "${{ steps.register-web.outputs.td_arn }}" \
+            --force-new-deployment
+          aws ecs wait services-stable \
+            --cluster "${{ env.ECS_CLUSTER }}" \
+            --services "${{ env.ECS_SERVICE }}"
+
+

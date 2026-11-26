@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pytest_cache/
+*.sqlite3
+.env
+.git
+.gitignore
+docker/
+media/
+staticfiles/

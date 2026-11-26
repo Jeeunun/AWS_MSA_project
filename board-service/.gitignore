@@ -1,0 +1,52 @@
+# 가상환경, 파이썬 캐시 등만 무시
+venv/
+vir_env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+db.sqlite3
+
+# MSA 배포 관련 파일들 (Git에서 제외)
+Dockerfile.msa
+docker-compose.msa.yml
+DEPLOYMENT_CHECKLIST.md
+
+# 환경 변수 파일들 (보안상 제외)
+.env
+.env.local
+.env.production
+env.example
+
+# AWS 관련 설정 파일들
+aws-config/
+*.pem
+*.key
+
+# 로그 파일들
+*.log
+logs/
+
+# 임시 파일들
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# IDE 설정 파일들
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 데이터베이스 백업 파일들
+*.sql
+*.sqlite3
+*.db
+
+# 캐시 파일들
+.cache/
+*.cache
+
+# Django 관리 파일 (선택사항 - API 서버로만 사용할 때)
+# manage.py

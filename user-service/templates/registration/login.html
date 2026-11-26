@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>로그인</title>
+    <style>
+        body {
+            font-family: '맑은 고딕', sans-serif;
+            padding: 40px;
+            max-width: 400px;
+            margin: auto;
+            background-color: #f9f9f9;
+        }
+        h1 { text-align: center; }
+        form {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            margin-top: 20px;
+            width: 100%;
+            padding: 10px;
+            background-color: #054cd1;
+            color: white;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .errorlist, .messages {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 6px;
+        }
+        .errorlist { color: #b00020; background: #ffecec; }
+        .messages   { color: #0a5; background: #e9fff2; }
+        .sub {
+            margin-top: 12px;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        .sub a { color: #0366d6; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <h1>로그인</h1>
+
+    <!-- 회원가입 이후 리디렉션 안내 등 메시지 표시 -->
+    {% if messages %}
+      <div class="messages">
+        {% for message in messages %}
+          {{ message }}
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <!-- 로그인 폼 에러 표시 -->
+        {% if form.non_field_errors %}
+          <div class="errorlist">
+            {% for e in form.non_field_errors %}{{ e }}{% endfor %}
+          </div>
+        {% elif form.errors %}
+          <div class="errorlist">아이디 또는 비밀번호가 올바르지 않습니다.</div>
+        {% endif %}
+
+        <label for="id_username">아이디:</label>
+        {{ form.username }}
+
+        <label for="id_password">비밀번호:</label>
+        {{ form.password }}
+
+        <!-- 로그인 후 돌아갈 경로 유지 -->
+        {% if next %}
+          <input type="hidden" name="next" value="{{ next }}">
+        {% endif %}
+
+        <button type="submit">로그인</button>
+    </form>
+
+    <div class="sub">
+        아직 계정이 없나요? <a href="{% url 'signup' %}">회원가입</a>
+    </div>
+</body>
+</html>
+

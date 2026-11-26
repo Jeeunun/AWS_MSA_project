@@ -1,0 +1,157 @@
+<!-- news/templates/news/news_list.html -->
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>뉴스 리스트</title>
+  <style>
+    :root{
+      --blue-900:#0d47a1; --blue-700:#1565c0; --blue-600:#1976d2; --blue-200:#bbdefb; --blue-50:#f0f6fc;
+    }
+    *{box-sizing:border-box}
+    body{font-family:'Segoe UI', system-ui, -apple-system, sans-serif; background:var(--blue-50); margin:0}
+    header{background:var(--blue-200); border-bottom:3px solid var(--blue-900); padding:24px 16px; text-align:center}
+    h1{color:var(--blue-900); margin:0 0 12px}
+    .search-wrap{
+      max-width:820px; margin:0 auto; position:relative;
+    }
+    .search-input{
+      width:100%; padding:14px 46px 14px 44px; border:2px solid var(--blue-600);
+      border-radius:999px; outline:none; background:#fff; font-size:16px;
+      transition:border-color .2s ease, box-shadow .2s ease;
+    }
+    .search-input:focus{
+      border-color:var(--blue-700);
+      box-shadow:0 0 0 4px rgba(21,101,192,.15);
+    }
+    .search-icon{
+      position:absolute; left:14px; top:50%; transform:translateY(-50%);
+      width:22px; height:22px; fill:var(--blue-700); pointer-events:none;
+    }
+    .clear-btn{
+      position:absolute; right:10px; top:50%; transform:translateY(-50%);
+      border:none; background:transparent; font-size:18px; cursor:pointer; padding:6px 8px; color:#456;
+    }
+    main{max-width:820px; margin:18px auto 40px; padding:0 16px}
+    ul{list-style:none; padding:0; margin:0}
+    li{
+      background:#fff; margin:10px 0; padding:16px 20px; border-left:5px solid var(--blue-600);
+      border-radius:8px; transition:transform .2s ease, background .2s ease, box-shadow .2s ease;
+      box-shadow:0 2px 6px rgba(0,0,0,.05);
+    }
+    li:hover{background:#e3f2fd; transform:translateX(3px)}
+    a{color:var(--blue-700); text-decoration:none; font-weight:600}
+    a:hover{color:var(--blue-900)}
+    .keyword{color:#556; font-size:.92em; margin-left:8px}
+    .empty{
+      display:none; text-align:center; color:#456; background:#fff; border:2px dashed var(--blue-200);
+      padding:24px; border-radius:12px; margin-top:14px;
+    }
+    .badge{background:var(--blue-200); color:var(--blue-900); padding:2px 8px; border-radius:999px; font-size:.8em; margin-left:6px}
+    mark{background:#ffec99; padding:0 .2em; border-radius:3px}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>오늘의 KBO 뉴스<small style="font-size:0.6em; color:#555;">({% now "Y-m-d" %})</small></h1>
+    <div class="search-wrap" role="search">
+      <!-- 돋보기 아이콘 -->
+      <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79L20 21.5 21.5 20l-6-6zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+      </svg>
+      <input id="searchInput" class="search-input" type="search" placeholder="안타, 홈런, 선발… 검색어를 입력하세요" aria-label="뉴스 검색" />
+      <button id="clearBtn" class="clear-btn" title="지우기" aria-label="검색어 지우기">✕</button>
+    </div>
+  </header>
+
+  <main>
+    <ul id="newsList">
+      {% for item in news %}
+        <li data-text="{{ item.title }} {{ item.keyword }}">
+          <a href="{{ item.link }}" target="_blank" rel="noopener noreferrer">
+            <span class="title">{{ item.title }}</span>
+          </a>
+          <span class="keyword">({{ item.keyword }})</span>
+        </li>
+      {% endfor %}
+    </ul>
+
+    <div id="emptyState" class="empty">
+      검색 결과가 없습니다. 다른 키워드를 입력해 보세요.
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      const input = document.getElementById('searchInput');
+      const clearBtn = document.getElementById('clearBtn');
+      const list = document.getElementById('newsList');
+      const empty = document.getElementById('emptyState');
+
+      // 간단한 문자열 정규화 (대소문자/공백)
+      const norm = (s) => (s || '').toString().toLowerCase().trim();
+
+      // 하이라이트 적용
+      function highlight(el, query) {
+        const titleSpan = el.querySelector('.title');
+        const text = titleSpan.textContent;
+        if (!query) {
+          titleSpan.innerHTML = text;
+          return;
+        }
+        const i = text.toLowerCase().indexOf(query.toLowerCase());
+        if (i === -1) {
+          titleSpan.innerHTML = text;
+          return;
+        }
+        const before = text.slice(0, i);
+        const match = text.slice(i, i + query.length);
+        const after = text.slice(i + query.length);
+        titleSpan.innerHTML = `${before}<mark>${match}</mark>${after}`;
+      }
+
+      function filter() {
+        const q = norm(input.value);
+        let visibleCount = 0;
+
+        [...list.children].forEach((li) => {
+          const hay = norm(li.getAttribute('data-text'));
+          const show = !q || hay.includes(q);
+          li.style.display = show ? '' : 'none';
+          if (show) {
+            visibleCount++;
+            highlight(li, q);
+          } else {
+            highlight(li, ''); // reset
+          }
+        });
+
+        empty.style.display = visibleCount ? 'none' : 'block';
+      }
+
+      // 실시간 필터링
+      input.addEventListener('input', filter);
+
+      // Enter 키로 고정 실행(모바일 대비)
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          filter();
+        }
+      });
+
+      // 지우기 버튼
+      clearBtn.addEventListener('click', () => {
+        input.value = '';
+        input.focus();
+        filter();
+      });
+
+      // 최초 렌더 후 한번 실행
+      filter();
+    })();
+  </script>
+</body>
+</html>
+

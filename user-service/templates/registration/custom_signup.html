@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>회원가입</title>
+  <style>
+    body { font-family:'맑은 고딕',sans-serif; padding:40px; max-width:480px; margin:auto; background:#f9f9f9; }
+    h1 { text-align:center; }
+    form { background:#fff; padding:20px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,.1); }
+    label { display:block; margin-top:14px; font-weight:bold; }
+    input, select { width:100%; padding:10px; margin-top:6px; border:1px solid #e5e7eb; border-radius:6px; box-sizing:border-box; }
+    .helptext { color:#6b7280; font-size:.9em; margin-top:4px; }
+    button { margin-top:20px; width:100%; padding:12px; background:#054cd1; color:#fff; border:none; font-weight:bold; border-radius:6px; cursor:pointer; }
+    .sub { margin-top:12px; text-align:center; font-size:.9rem; }
+    .sub a { color:#0366d6; text-decoration:none; }
+  </style>
+</head>
+<body>
+  <h1>회원가입</h1>
+
+  <form method="post" action="{% url 'custom_signup_submit' %}">
+    {% csrf_token %}
+
+    <label>이름</label>
+    <input type="text" name="name" placeholder="홍길동">
+
+    <label for="password">비밀번호</label>
+    <input id="password" name="password" type="password" required minlength="8">
+    <div class="helptext" id="pw_help">
+      8자 이상, <b>영문 대/소문자</b>, <b>숫자</b>, <b>특수문자</b> 중 <b>3가지 이상</b> 조합을 권장합니다.
+    </div>
+
+    <label>이메일</label>
+    <input type="email" name="email" required>
+
+    <label>전화번호</label>
+    <input type="text" name="phone_number" placeholder="+821012345678" required>
+    <div class="helptext">예: +821012345678 (입력 시 010으로 쓰면 자동으로 +8210으로 보정합니다)</div>
+
+    <label>생년월일</label>
+    <input type="text" name="birthdate" placeholder="YYYY-MM-DD" required>
+
+    <label>응원팀</label>
+    <select name="custom:favorite_team" id="favorite_team">
+      <option value="none">선택 안함</option>
+      <option>LG</option>
+      <option>두산</option>
+      <option>키움</option>
+      <option>SSG</option>
+      <option>KT</option>
+      <option>한화</option>
+      <option>KIA</option>
+      <option>롯데</option>
+      <option>삼성</option>
+      <option>NC</option>
+    </select>
+
+    <button type="submit">가입하기</button>
+  </form>
+
+  <div class="sub">
+    이미 계정이 있나요? <a href="{% url 'custom_login_page' %}">로그인</a>
+  </div>
+
+  <script>
+    // 전화번호: 010xxxxxxxx → +8210xxxxxxxx 자동 보정
+    (function () {
+      const phone = document.querySelector('input[name="phone_number"]');
+      if (!phone) return;
+      phone.addEventListener('blur', () => {
+        const v = (phone.value || '').replace(/\D+/g, '');
+        if (/^0\d{9,10}$/.test(v)) {
+          phone.value = '+82' + v.slice(1); // 010 → +8210
+        }
+      });
+    })();
+
+    // 비밀번호 간단 검증: 길이 + (대/소/숫/특) 중 3종 이상
+    (function () {
+      const pw = document.getElementById('password');
+      const help = document.getElementById('pw_help');
+      if (!pw) return;
+
+      function validate() {
+        const v = pw.value || '';
+        const rules = [
+          v.length >= 8,
+          /[A-Z]/.test(v),
+          /[a-z]/.test(v),
+          /\d/.test(v),
+          /[^A-Za-z0-9]/.test(v)
+        ];
+        const kinds = [rules[1], rules[2], rules[3], rules[4]].filter(Boolean).length;
+        const ok = rules[0] && kinds >= 3;
+        pw.setCustomValidity(ok ? '' : '비밀번호 조건을 확인해주세요.');
+        help.style.color = ok ? '#0a5' : '#b00020';
+      }
+
+      pw.addEventListener('input', validate);
+      pw.addEventListener('blur', validate);
+    })();
+  </script>
+</body>
+</html>
+

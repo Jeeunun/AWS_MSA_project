@@ -1,0 +1,36 @@
+<!-- templates/registration/custom_confirm.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>이메일 인증</title>
+  <style>
+    body { font-family:'맑은 고딕',sans-serif; padding:40px; max-width:400px; margin:auto; background:#f9f9f9; }
+    h1 { text-align:center; }
+    form { background:#fff; padding:20px; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.1); }
+    label { display:block; margin-top:15px; font-weight:bold; }
+    input { width:100%; padding:8px; margin-top:5px; box-sizing:border-box; }
+    button { margin-top:20px; width:100%; padding:10px; background:#054cd1; color:#fff; border:none; font-weight:bold; cursor:pointer; }
+  </style>
+</head>
+<body>
+  <h1>이메일 인증</h1>
+
+  <!-- 제출: /users/custom/confirm (GET=폼, POST=확인) -->
+  <form method="post" action="{% url 'custom_confirm' %}">
+    {% csrf_token %}
+
+    <label for="email">가입 이메일</label>
+    <input id="email" name="email" type="email" required>
+
+    <label for="code">인증코드</label>
+    <input id="code" name="code" type="text" required>
+
+    <button type="submit">확인</button>
+  </form>
+
+  <div class="sub" style="text-align:center; margin-top:12px;">
+    인증 완료 후 <a href="{% url 'custom_login_page' %}">로그인</a>으로 이동
+  </div>
+</body>
+</html>

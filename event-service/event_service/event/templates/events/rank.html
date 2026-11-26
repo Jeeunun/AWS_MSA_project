@@ -1,0 +1,67 @@
+<!-- templates/events/rank.html -->
+{% extends "events/base_events.html" %}
+{% block title %}종합 · 공격/수비 순위{% endblock %}
+{% block nav_ranks %}active{% endblock %}
+
+{% block content %}
+  <h1>KBO 구단 순위</h1>
+
+  <h2>📊 종합 순위</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>순위</th><th>팀</th><th>경기</th><th>승</th><th>패</th><th>승률</th><th>게임차</th><th>연속</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in total %}
+      <tr>
+        <td>{{ row.rank }}</td><td>{{ row.team }}</td><td>{{ row.games }}</td><td>{{ row.wins }}</td>
+        <td>{{ row.lose }}</td><td>{{ row.rate }}</td><td>{{ row.gb }}</td><td>{{ row.streak }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>🔥 공격 순위</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>순위</th><th>팀</th><th>타수</th><th>안타</th><th>2루타</th><th>3루타</th><th>홈런</th>
+        <th>타점</th><th>득점</th><th>도루</th><th>사구</th><th>삼진</th><th>병살</th>
+        <th>타율</th><th>출루율</th><th>장타율</th><th>OPS</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in attack %}
+      <tr>
+        <td>{{ row.rank }}</td><td>{{ row.team }}</td><td>{{ row.at_bats }}</td><td>{{ row.hits }}</td>
+        <td>{{ row.doubles }}</td><td>{{ row.triples }}</td><td>{{ row.home_runs }}</td>
+        <td>{{ row.rbi }}</td><td>{{ row.runs_scored }}</td><td>{{ row.stolen_bases }}</td>
+        <td>{{ row.walks_hit_by_pitch }}</td><td>{{ row.strikeouts }}</td><td>{{ row.double_plays }}</td>
+        <td>{{ row.batting_avg }}</td><td>{{ row.obp }}</td><td>{{ row.slg }}</td><td>{{ row.ops }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>🛡 수비 순위</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>순위</th><th>팀</th><th>이닝</th><th>피안타</th><th>피홈런</th><th>실점</th><th>자책</th>
+        <th>사구</th><th>삼진</th><th>실책</th><th>WHIP</th><th>QS</th><th>세이브</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in defend %}
+      <tr>
+        <td>{{ row.rank }}</td><td>{{ row.team }}</td><td>{{ row.innings }}</td><td>{{ row.hits_allowed }}</td>
+        <td>{{ row.home_runs_allowed }}</td><td>{{ row.runs_allowed }}</td><td>{{ row.earned_runs }}</td>
+        <td>{{ row.walks_hit_by_pitch }}</td><td>{{ row.strikeouts }}</td><td>{{ row.errors }}</td>
+        <td>{{ row.whip }}</td><td>{{ row.qs }}</td><td>{{ row.saves }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
